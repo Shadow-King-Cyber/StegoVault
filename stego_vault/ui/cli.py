@@ -4,7 +4,6 @@ import click
 
 from ..core.audit_logger import AuditLogger
 from ..analysis.entropy_analyzer import EntropyAnalyzer
-from ..analysis.consistency_analyzer import ConsistencyAnalyzer
 from ..detection.lsb_detector import LSBDetector
 from ..detection.metadata_detector import MetadataDetector
 from ..detection.watermark_detector import WatermarkDetector
