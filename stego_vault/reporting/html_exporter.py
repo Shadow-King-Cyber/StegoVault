@@ -1,5 +1,6 @@
 """Exportación de reportes a HTML con Chart.js."""
 
+import json
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,7 @@ class HtmlExporter:
     def export(self, data: dict[str, Any], filename: str = "report.html") -> Path:
         summary = data.get("summary", {})
         risk_level = summary.get("risk_level", "Limpio")
+        risk_css = risk_level.lower().replace("ítico", "itico")
 
         html = f"""<!DOCTYPE html>
 <html lang="es">
@@ -37,9 +39,11 @@ td, th {{ border: 1px solid #00ff41; padding: 8px; }}
 <body>
 <h1>StegoVault — Reporte de Esteganografía</h1>
 <p>Archivo: <strong>{data.get('filename', 'N/A')}</strong></p>
-<p>Riesgo: <span class="risk {risk_level.lower()}">{risk_level}</span></p>
+<p>Riesgo: <span class="risk {risk_css}">{risk_level}</span></p>
 <p>Score: <strong>{summary.get('risk_score', 0)}/10</strong></p>
 <p>Findings: <strong>{summary.get('total_findings', 0)}</strong></p>
+<h2>Distribución de Riesgo</h2>
+<canvas id="riskChart"></canvas>
 <h2>OWASP Mapping</h2>
 <table>
 <tr><th>Tipo</th><th>Referencia</th></tr>
@@ -49,8 +53,8 @@ td, th {{ border: 1px solid #00ff41; padding: 8px; }}
 new Chart(document.getElementById('riskChart'), {{
   type: 'doughnut',
   data: {{
-    labels: ['High', 'Medium', 'Low'],
-    datasets: [{{data: [{summary.get('total_findings', 0)}, 0, 0], backgroundColor: ['#ff4444','#ffaa00','#00ff41']}}]
+    labels: {json.dumps(['Alto', 'Medio', 'Bajo'])},
+    datasets: [{{data: {json.dumps([summary.get('high_risk', 0), summary.get('medium_risk', 0), summary.get('low_risk', 0)])}, backgroundColor: ['#ff4444','#ffaa00','#00ff41']}}]
   }}
 }});
 </script>
